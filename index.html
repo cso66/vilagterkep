@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet-svg-shape-markers.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="data/OrszgokNpessg_4.js"></script>
+        <script src="data/Legamagassbpontm_5.js"></script>
+        <script src="data/Lgikatasztrfkhalottakszma_6.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[-87.05912056673273,-171.91725512490277],[142.8559633261963,198.75768433189208]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_EsriLightGray_0');
+        map.getPane('pane_EsriLightGray_0').style.zIndex = 400;
+        var layer_EsriLightGray_0 = L.tileLayer('https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            pane: 'pane_EsriLightGray_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+        });
+        layer_EsriLightGray_0;
+        map.addLayer(layer_EsriLightGray_0);
+        map.createPane('pane_GoogleTerrainHybrid_1');
+        map.getPane('pane_GoogleTerrainHybrid_1').style.zIndex = 401;
+        var layer_GoogleTerrainHybrid_1 = L.tileLayer('https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleTerrainHybrid_1',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 22
+        });
+        layer_GoogleTerrainHybrid_1;
+        map.addLayer(layer_GoogleTerrainHybrid_1);
+        map.createPane('pane_GoogleSatelliteHybrid_2');
+        map.getPane('pane_GoogleSatelliteHybrid_2').style.zIndex = 402;
+        var layer_GoogleSatelliteHybrid_2 = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleSatelliteHybrid_2',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 22
+        });
+        layer_GoogleSatelliteHybrid_2;
+        map.addLayer(layer_GoogleSatelliteHybrid_2);
+        map.createPane('pane_GoogleSatellite_3');
+        map.getPane('pane_GoogleSatellite_3').style.zIndex = 403;
+        var layer_GoogleSatellite_3 = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleSatellite_3',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 22
+        });
+        layer_GoogleSatellite_3;
+        map.addLayer(layer_GoogleSatellite_3);
+        function pop_OrszgokNpessg_4(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">NAME</th>\
+                        <td>' + (feature.properties['NAME'] !== null ? autolinker.link(String(feature.properties['NAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Fizetőeszköz</th>\
+                        <td>' + (feature.properties['oeszag_p_1'] !== null ? autolinker.link(String(feature.properties['oeszag_p_1']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Jele</th>\
+                        <td>' + (feature.properties['oeszag_p_2'] !== null ? autolinker.link(String(feature.properties['oeszag_p_2']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Pénz rövidítése</th>\
+                        <td>' + (feature.properties['oeszag_p_3'] !== null ? autolinker.link(String(feature.properties['oeszag_p_3']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">váltó</th>\
+                        <td>' + (feature.properties['oeszag_p_4'] !== null ? autolinker.link(String(feature.properties['oeszag_p_4']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">váltás</th>\
+                        <td>' + (feature.properties['oeszag_p_5'] !== null ? autolinker.link(String(feature.properties['oeszag_p_5']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Főváros</th>\
+                        <td>' + (feature.properties['oeszag_p_6'] !== null ? autolinker.link(String(feature.properties['oeszag_p_6']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Bitcoin Hivatalos</th>\
+                        <td>' + (feature.properties['oeszag_p_7'] !== null ? autolinker.link(String(feature.properties['oeszag_p_7']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Web domain</th>\
+                        <td>' + (feature.properties['oeszag_p_9'] !== null ? autolinker.link(String(feature.properties['oeszag_p_9']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['oeszag_p10'] !== null ? '<img src="images/' + String(feature.properties['oeszag_p10']).replace(/[\\/:]/g, '_').trim().replace(/'/g, '\'').replace(/"/g, '&quot;') + '">' : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Előhívó szám</th>\
+                        <td>' + (feature.properties['oeszag_p14'] !== null ? autolinker.link(String(feature.properties['oeszag_p14']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Lakosság (millió fő)</th>\
+                        <td>' + (feature.properties['Lak. (mill'] !== null ? autolinker.link(String(feature.properties['Lak. (mill']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Terület (km2)</th>\
+                        <td>' + (feature.properties['area ()'] !== null ? autolinker.link(String(feature.properties['area ()']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_OrszgokNpessg_4_0(feature) {
+            if (feature.properties['Lak. (mill'] >= 0.000000 && feature.properties['Lak. (mill'] <= 4.000000 ) {
+                return {
+                pane: 'pane_OrszgokNpessg_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(250,235,221,0.5)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Lak. (mill'] >= 4.000000 && feature.properties['Lak. (mill'] <= 14.000000 ) {
+                return {
+                pane: 'pane_OrszgokNpessg_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(247,207,180,0.5)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Lak. (mill'] >= 14.000000 && feature.properties['Lak. (mill'] <= 26.000000 ) {
+                return {
+                pane: 'pane_OrszgokNpessg_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(246,177,138,0.5)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Lak. (mill'] >= 26.000000 && feature.properties['Lak. (mill'] <= 39.000000 ) {
+                return {
+                pane: 'pane_OrszgokNpessg_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(245,144,103,0.5)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Lak. (mill'] >= 39.000000 && feature.properties['Lak. (mill'] <= 54.000000 ) {
+                return {
+                pane: 'pane_OrszgokNpessg_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(242,109,75,0.5)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Lak. (mill'] >= 54.000000 && feature.properties['Lak. (mill'] <= 72.000000 ) {
+                return {
+                pane: 'pane_OrszgokNpessg_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(235,71,62,0.5)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Lak. (mill'] >= 72.000000 && feature.properties['Lak. (mill'] <= 89.000000 ) {
+                return {
+                pane: 'pane_OrszgokNpessg_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(216,39,72,0.5)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Lak. (mill'] >= 89.000000 && feature.properties['Lak. (mill'] <= 100.000000 ) {
+                return {
+                pane: 'pane_OrszgokNpessg_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(188,22,86,0.5)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Lak. (mill'] >= 100.000000 && feature.properties['Lak. (mill'] <= 150.000000 ) {
+                return {
+                pane: 'pane_OrszgokNpessg_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(155,27,91,0.5)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Lak. (mill'] >= 150.000000 && feature.properties['Lak. (mill'] <= 250.000000 ) {
+                return {
+                pane: 'pane_OrszgokNpessg_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(122,31,89,0.5)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Lak. (mill'] >= 250.000000 && feature.properties['Lak. (mill'] <= 300.000000 ) {
+                return {
+                pane: 'pane_OrszgokNpessg_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(89,30,80,0.5)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Lak. (mill'] >= 300.000000 && feature.properties['Lak. (mill'] <= 500.000000 ) {
+                return {
+                pane: 'pane_OrszgokNpessg_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(59,26,65,0.5)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Lak. (mill'] >= 500.000000 && feature.properties['Lak. (mill'] <= 1000.000000 ) {
+                return {
+                pane: 'pane_OrszgokNpessg_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(30,18,45,0.5)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['Lak. (mill'] >= 1000.000000 && feature.properties['Lak. (mill'] <= 1450.000000 ) {
+                return {
+                pane: 'pane_OrszgokNpessg_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(3,5,26,0.5)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_OrszgokNpessg_4');
+        map.getPane('pane_OrszgokNpessg_4').style.zIndex = 404;
+        map.getPane('pane_OrszgokNpessg_4').style['mix-blend-mode'] = 'normal';
+        var layer_OrszgokNpessg_4 = new L.geoJson(json_OrszgokNpessg_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_OrszgokNpessg_4',
+            layerName: 'layer_OrszgokNpessg_4',
+            pane: 'pane_OrszgokNpessg_4',
+            onEachFeature: pop_OrszgokNpessg_4,
+            style: style_OrszgokNpessg_4_0,
+        });
+        bounds_group.addLayer(layer_OrszgokNpessg_4);
+        map.addLayer(layer_OrszgokNpessg_4);
+        function pop_Legamagassbpontm_5(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Country</th>\
+                        <td>' + (feature.properties['Country'] !== null ? autolinker.link(String(feature.properties['Country']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Highest Point</th>\
+                        <td>' + (feature.properties['Highest Point'] !== null ? autolinker.link(String(feature.properties['Highest Point']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Magasság (m)</th>\
+                        <td>' + (feature.properties['Magassag'] !== null ? autolinker.link(String(feature.properties['Magassag']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['eleres'] !== null ? '<img src="images/' + String(feature.properties['eleres']).replace(/[\\/:]/g, '_').trim().replace(/'/g, '\'').replace(/"/g, '&quot;') + '">' : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Legamagassbpontm_5_0(feature) {
+            if (feature.properties['elev(m)'] >= 0.000000 && feature.properties['elev(m)'] <= 2000.000000 ) {
+                return {
+                pane: 'pane_Legamagassbpontm_5',
+                shape: 'triangle',
+                radius: 6.799999999999999,
+                opacity: 1,
+                color: 'rgba(128,17,25,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,231,37,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['elev(m)'] >= 2000.000000 && feature.properties['elev(m)'] <= 3000.000000 ) {
+                return {
+                pane: 'pane_Legamagassbpontm_5',
+                shape: 'triangle',
+                radius: 6.799999999999999,
+                opacity: 1,
+                color: 'rgba(128,17,25,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(158,217,58,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['elev(m)'] >= 3000.000000 && feature.properties['elev(m)'] <= 4000.000000 ) {
+                return {
+                pane: 'pane_Legamagassbpontm_5',
+                shape: 'triangle',
+                radius: 6.799999999999999,
+                opacity: 1,
+                color: 'rgba(128,17,25,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(74,194,109,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['elev(m)'] >= 4000.000000 && feature.properties['elev(m)'] <= 5000.000000 ) {
+                return {
+                pane: 'pane_Legamagassbpontm_5',
+                shape: 'triangle',
+                radius: 6.799999999999999,
+                opacity: 1,
+                color: 'rgba(128,17,25,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(31,162,136,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['elev(m)'] >= 5000.000000 && feature.properties['elev(m)'] <= 6000.000000 ) {
+                return {
+                pane: 'pane_Legamagassbpontm_5',
+                shape: 'triangle',
+                radius: 6.799999999999999,
+                opacity: 1,
+                color: 'rgba(128,17,25,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(39,127,142,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['elev(m)'] >= 6000.000000 && feature.properties['elev(m)'] <= 7000.000000 ) {
+                return {
+                pane: 'pane_Legamagassbpontm_5',
+                shape: 'triangle',
+                radius: 6.799999999999999,
+                opacity: 1,
+                color: 'rgba(128,17,25,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(54,92,141,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['elev(m)'] >= 7000.000000 && feature.properties['elev(m)'] <= 8000.000000 ) {
+                return {
+                pane: 'pane_Legamagassbpontm_5',
+                shape: 'triangle',
+                radius: 6.799999999999999,
+                opacity: 1,
+                color: 'rgba(128,17,25,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(70,50,127,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['elev(m)'] >= 8000.000000 && feature.properties['elev(m)'] <= 8848.000000 ) {
+                return {
+                pane: 'pane_Legamagassbpontm_5',
+                shape: 'triangle',
+                radius: 6.799999999999999,
+                opacity: 1,
+                color: 'rgba(128,17,25,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(68,1,84,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Legamagassbpontm_5');
+        map.getPane('pane_Legamagassbpontm_5').style.zIndex = 405;
+        map.getPane('pane_Legamagassbpontm_5').style['mix-blend-mode'] = 'normal';
+        var layer_Legamagassbpontm_5 = new L.geoJson(json_Legamagassbpontm_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Legamagassbpontm_5',
+            layerName: 'layer_Legamagassbpontm_5',
+            pane: 'pane_Legamagassbpontm_5',
+            onEachFeature: pop_Legamagassbpontm_5,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.shapeMarker(latlng, style_Legamagassbpontm_5_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Legamagassbpontm_5);
+        map.addLayer(layer_Legamagassbpontm_5);
+        function pop_Lgikatasztrfkhalottakszma_6(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Halottak száma</th>\
+                        <td>' + (feature.properties['Tot'] !== null ? autolinker.link(String(feature.properties['Tot']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Legitarsasag</th>\
+                        <td>' + (feature.properties['Legitarsasag'] !== null ? autolinker.link(String(feature.properties['Legitarsasag']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Repulogep</th>\
+                        <td>' + (feature.properties['Repulogep'] !== null ? autolinker.link(String(feature.properties['Repulogep']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Varos</th>\
+                        <td>' + (feature.properties['Varos'] !== null ? autolinker.link(String(feature.properties['Varos']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Baleset éve</th>\
+                        <td>' + (feature.properties['Year'] !== null ? autolinker.link(String(feature.properties['Year']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Lgikatasztrfkhalottakszma_6_0(feature) {
+            if (feature.properties['Tot'] >= 0.000000 && feature.properties['Tot'] <= 50.000000 ) {
+                return {
+                pane: 'pane_Lgikatasztrfkhalottakszma_6',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/Lgikatasztrfkhalottakszma_6.svg',
+            iconSize: [3.8, 3.8]
+        }),
+                interactive: true,
+            }
+            }
+            if (feature.properties['Tot'] >= 50.000000 && feature.properties['Tot'] <= 100.000000 ) {
+                return {
+                pane: 'pane_Lgikatasztrfkhalottakszma_6',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/Lgikatasztrfkhalottakszma_6.svg',
+            iconSize: [9.12, 9.12]
+        }),
+                interactive: true,
+            }
+            }
+            if (feature.properties['Tot'] >= 100.000000 && feature.properties['Tot'] <= 200.000000 ) {
+                return {
+                pane: 'pane_Lgikatasztrfkhalottakszma_6',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/Lgikatasztrfkhalottakszma_6.svg',
+            iconSize: [14.44, 14.44]
+        }),
+                interactive: true,
+            }
+            }
+            if (feature.properties['Tot'] >= 200.000000 && feature.properties['Tot'] <= 350.000000 ) {
+                return {
+                pane: 'pane_Lgikatasztrfkhalottakszma_6',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/Lgikatasztrfkhalottakszma_6.svg',
+            iconSize: [19.759999999999998, 19.759999999999998]
+        }),
+                interactive: true,
+            }
+            }
+            if (feature.properties['Tot'] >= 350.000000 && feature.properties['Tot'] <= 1000.000000 ) {
+                return {
+                pane: 'pane_Lgikatasztrfkhalottakszma_6',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/Lgikatasztrfkhalottakszma_6.svg',
+            iconSize: [25.08, 25.08]
+        }),
+                interactive: true,
+            }
+            }
+            if (feature.properties['Tot'] >= 1000.000000 && feature.properties['Tot'] <= 1700.000000 ) {
+                return {
+                pane: 'pane_Lgikatasztrfkhalottakszma_6',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/Lgikatasztrfkhalottakszma_6.svg',
+            iconSize: [30.4, 30.4]
+        }),
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Lgikatasztrfkhalottakszma_6');
+        map.getPane('pane_Lgikatasztrfkhalottakszma_6').style.zIndex = 406;
+        map.getPane('pane_Lgikatasztrfkhalottakszma_6').style['mix-blend-mode'] = 'normal';
+        var layer_Lgikatasztrfkhalottakszma_6 = new L.geoJson(json_Lgikatasztrfkhalottakszma_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Lgikatasztrfkhalottakszma_6',
+            layerName: 'layer_Lgikatasztrfkhalottakszma_6',
+            pane: 'pane_Lgikatasztrfkhalottakszma_6',
+            onEachFeature: pop_Lgikatasztrfkhalottakszma_6,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.marker(latlng, style_Lgikatasztrfkhalottakszma_6_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Lgikatasztrfkhalottakszma_6);
+        map.addLayer(layer_Lgikatasztrfkhalottakszma_6);
+        var overlaysTree = [
+            {label: 'Légikatasztrófák (halottak száma)<br /><table><tr><td style="text-align: center;"><img src="legend/Lgikatasztrfkhalottakszma_6_0500.png" /></td><td>0 - 50</td></tr><tr><td style="text-align: center;"><img src="legend/Lgikatasztrfkhalottakszma_6_501001.png" /></td><td>50 - 100</td></tr><tr><td style="text-align: center;"><img src="legend/Lgikatasztrfkhalottakszma_6_1002002.png" /></td><td>100 - 200</td></tr><tr><td style="text-align: center;"><img src="legend/Lgikatasztrfkhalottakszma_6_2003503.png" /></td><td>200 - 350</td></tr><tr><td style="text-align: center;"><img src="legend/Lgikatasztrfkhalottakszma_6_35010004.png" /></td><td>350 - 1000</td></tr><tr><td style="text-align: center;"><img src="legend/Lgikatasztrfkhalottakszma_6_100017005.png" /></td><td>1000 - 1700</td></tr></table>', layer: layer_Lgikatasztrfkhalottakszma_6},
+            {label: 'Legamagassb pont (m)<br /><table><tr><td style="text-align: center;"><img src="legend/Legamagassbpontm_5_20000.png" /></td><td>>2000</td></tr><tr><td style="text-align: center;"><img src="legend/Legamagassbpontm_5_200030001.png" /></td><td>2000 - 3000</td></tr><tr><td style="text-align: center;"><img src="legend/Legamagassbpontm_5_300040002.png" /></td><td>3000 - 4000</td></tr><tr><td style="text-align: center;"><img src="legend/Legamagassbpontm_5_400050003.png" /></td><td>4000 - 5000</td></tr><tr><td style="text-align: center;"><img src="legend/Legamagassbpontm_5_500060004.png" /></td><td>5000 - 6000</td></tr><tr><td style="text-align: center;"><img src="legend/Legamagassbpontm_5_600070005.png" /></td><td>6000 - 7000</td></tr><tr><td style="text-align: center;"><img src="legend/Legamagassbpontm_5_700080006.png" /></td><td>7000 - 8000</td></tr><tr><td style="text-align: center;"><img src="legend/Legamagassbpontm_5_800088487.png" /></td><td>8000 - 8848</td></tr></table>', layer: layer_Legamagassbpontm_5},
+            {label: 'Országok (Népesség)<br /><table><tr><td style="text-align: center;"><img src="legend/OrszgokNpessg_4_0m4m0.png" /></td><td>0 m - 4 m</td></tr><tr><td style="text-align: center;"><img src="legend/OrszgokNpessg_4_4m14m1.png" /></td><td>4 m - 14 m</td></tr><tr><td style="text-align: center;"><img src="legend/OrszgokNpessg_4_14m26m2.png" /></td><td>14 m - 26 m</td></tr><tr><td style="text-align: center;"><img src="legend/OrszgokNpessg_4_26m39m3.png" /></td><td>26 m - 39 m</td></tr><tr><td style="text-align: center;"><img src="legend/OrszgokNpessg_4_39m54m4.png" /></td><td>39 m - 54 m</td></tr><tr><td style="text-align: center;"><img src="legend/OrszgokNpessg_4_54m72m5.png" /></td><td>54 m - 72 m</td></tr><tr><td style="text-align: center;"><img src="legend/OrszgokNpessg_4_72m89m6.png" /></td><td>72 m - 89 m</td></tr><tr><td style="text-align: center;"><img src="legend/OrszgokNpessg_4_89m100m7.png" /></td><td>89 m - 100 m</td></tr><tr><td style="text-align: center;"><img src="legend/OrszgokNpessg_4_100m150m8.png" /></td><td>100 m- 150 m</td></tr><tr><td style="text-align: center;"><img src="legend/OrszgokNpessg_4_150m250m9.png" /></td><td>150 m - 250 m</td></tr><tr><td style="text-align: center;"><img src="legend/OrszgokNpessg_4_250m300m10.png" /></td><td>250 m - 300 m</td></tr><tr><td style="text-align: center;"><img src="legend/OrszgokNpessg_4_300m500m11.png" /></td><td>300 m - 500 m</td></tr><tr><td style="text-align: center;"><img src="legend/OrszgokNpessg_4_500m1mrd12.png" /></td><td>500 m - 1mrd</td></tr><tr><td style="text-align: center;"><img src="legend/OrszgokNpessg_4_1mrd13.png" /></td><td>1 mrd<</td></tr></table>', layer: layer_OrszgokNpessg_4},
+            {label: "Google Satellite", layer: layer_GoogleSatellite_3},
+            {label: "Google Satellite Hybrid", layer: layer_GoogleSatelliteHybrid_2},
+            {label: "Google Terrain Hybrid", layer: layer_GoogleTerrainHybrid_1},
+            {label: "Esri Light Gray", layer: layer_EsriLightGray_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        </script>
+    </body>
+</html>
